@@ -2,6 +2,7 @@
 
 namespace Kuborgh\LogentriesBundle\Transport;
 
+use eZ\Bundle\EzPublishRestBundle\Features\Context\RestClient\GuzzleClient;
 use GuzzleHttp\Client;
 
 /**
@@ -20,22 +21,41 @@ class HttpGuzzleTransport implements TransportInterface
     protected $accountKey;
 
     /**
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * @var string
+     */
+    protected $log;
+
+    /**
+     * Transport constructor
+     *
+     * @param array $params Service parameters
+     */
+    public function __construct(array $params)
+    {
+        $this->host = isset($params['log_set']) ? $params['log_set'] : '';
+        $this->log = isset($params['log']) ? $params['log'] : '';
+        $this->accountKey = isset($params['account_key']) ? $params['account_key'] : '';
+    }
+
+    /**
      * Send a custom message to a custom logentries channel via HTTP
      *
      * @param string $logSet  Logset
      * @param string $log     Log to send data to
-     * @param array  $payload Content
+     * @param string $json Data in JSON format
      */
-    public function send($logSet, $log, $payload)
+    public function send($json)
     {
-        // @rfe use JMS Serializer. This will also allow \DateTime
-        $json = json_encode($payload);
-
         // Prepare URL
-        $key = $this->accountKey;
-        $url = sprintf('http://api.logentries.com/%s/hosts/%s/%s/?realtime=1', $key, $logSet, $log);
+        $url = sprintf('http://api.logentries.com/%s/hosts/%s/%s/?realtime=1', $this->accountKey, $this->host, $this->log);
 
         // Prepare request
+        // @todo make guzzle options configurable
         $opts = array(
             'body'            => $json."\n",
             'timeout'         => 3,
@@ -45,26 +65,7 @@ class HttpGuzzleTransport implements TransportInterface
         );
 
         // Perform request
-        $this->guzzleClient->put($url, $opts);
-    }
-
-    /**
-     * Set guzzleClient
-     *
-     * @param Client $guzzleClient
-     */
-    public function setGuzzleClient($guzzleClient)
-    {
-        $this->guzzleClient = $guzzleClient;
-    }
-
-    /**
-     * Set accountKey
-     *
-     * @param string $accountKey
-     */
-    public function setAccountKey($accountKey)
-    {
-        $this->accountKey = $accountKey;
+        $client = new Client();
+        $res = $client->put($url, $opts);
     }
 }

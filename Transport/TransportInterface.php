@@ -10,11 +10,16 @@ use GuzzleHttp\Client;
 interface TransportInterface
 {
     /**
+     * Transport constructor
+     *
+     * @param array $params Service parameters
+     */
+    public function __construct(array $params);
+
+    /**
      * Send a custom message to a custom logentries channel
      *
-     * @param string $logSet  Logset
-     * @param string $log     Log to send data to
-     * @param array  $payload Content
+     * @param string $data Data in JSON format
      */
-    public function send($logSet, $log, $payload);
+    public function send($json);
 }

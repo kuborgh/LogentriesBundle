@@ -1,0 +1,3 @@
+parameters:
+    kuborgh_logentries.handler.class: Kuborgh\LogentriesBundle\Monolog\Handler\LogentriesHandler
+    kuborgh_logentries.transport.http_guzzle.class: Kuborgh\LogentriesBundle\Transport\HttpGuzzleTransport
