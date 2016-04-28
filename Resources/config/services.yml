@@ -1,0 +1,13 @@
+parameters:
+    kuborgh_logentries.handler.class: Kuborgh\LogentriesBundle\Monolog\Handler\LogentriesHandler
+    kuborgh_logentries.transport.http_guzzle.class: Kuborgh\LogentriesBundle\Transport\HttpGuzzleTransport
+    kuborgh_logentries.transport.http_guzzle.account_key: ~
+
+services:
+    kuborgh_logentries.transport.http_guzzle:
+        class: %kuborgh_logentries.transport.http_guzzle.class%
+    kuborgh_logentries.service:
+        class: %kuborgh_logentries.service.class%
+        calls:
+            - [ setGuzzleClient, [@guzzle.client]]
+            - [ setAccountKey, [%kuborgh_logentries.transport.http_guzzle.account_key%]]
