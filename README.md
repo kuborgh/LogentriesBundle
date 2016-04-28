@@ -54,15 +54,41 @@ class AppKernel extends Kernel
 Configuration
 -------------
 
-Following configuration variables exist an can be inserted into the config.yml of your project
+The full configuration can be shown with `php app/console config:dump-reference kuborgh_logentries`
+ 
+Following sample configuration can be used inside the config.yml of your project
 ```yml
 kuborgh_logentries:
-    handler:
+    # Possibility to disable logentries in dev mode
+    enabled: true
+
+    # Create monolog compatible handlers
+    monolog:
+        # Name of the handler
         my_handler:
             # Transport for logging. Supported loggers are only http_guzzle by now 
             transport: http_guzzle
 
-            # Account Key of logentries.com account
+            # Account Key of logentries.com account for http transport
+            account_key: <logentries account key>
+            
+            # LogSet
+            log_set: my_log_set
+            
+            # Log channel
+            log: my_log
+            
+            # Loglevel (can not be configured in monolog config!)
+            level: error
+            
+    # Create simple logger service
+    logger:
+        # Name of the service will be kuborgh_logentries.my_logger
+        my_logger:
+            # Transport for logging. Supported loggers are only http_guzzle by now 
+            transport: http_guzzle
+            
+            # Account Key of logentries.com account for http transport
             account_key: <logentries account key>
             
             # LogSet
@@ -78,7 +104,6 @@ monolog:
     custom:
         type: service
         id: kuborgh_logentries.handler.my_handler
-        level: error
 ```
 
 Testing

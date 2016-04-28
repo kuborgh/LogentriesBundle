@@ -32,6 +32,7 @@ class KuborghLogentriesExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('parameters.yml');
 
+        // Register monolog handler
         foreach ($config['monolog'] as $handlerName => $handlerConfig) {
             // Configure transport
             $transportClass = $container->getParameter(sprintf('kuborgh_logentries.transport.%s.class', $handlerConfig['transport']));
@@ -44,7 +45,22 @@ class KuborghLogentriesExtension extends Extension
             $serviceDef = new Definition($handlerClass);
             $serviceDef->addArgument($level);
             $serviceDef->addMethodCall('setTransport', array($transportClass, $handlerConfig));
+            $serviceDef->addMethodCall('setEnabled', array($config['enabled']));
             $serviceName = sprintf('kuborgh_logentries.handler.%s', $handlerName);
+            $container->setDefinition($serviceName, $serviceDef);
+        }
+
+        // Register simple logger
+        foreach ($config['logger'] as $handlerName => $handlerConfig) {
+            // Configure transport
+            $transportClass = $container->getParameter(sprintf('kuborgh_logentries.transport.%s.class', $handlerConfig['transport']));
+
+            // Build Service
+            $handlerClass = $container->getParameter('kuborgh_logentries.logger.class');
+            $serviceDef = new Definition($handlerClass);
+            $serviceDef->addArgument($config['enabled']);
+            $serviceDef->addMethodCall('setTransport', array($transportClass, $handlerConfig));
+            $serviceName = sprintf('kuborgh_logentries.%s', $handlerName);
             $container->setDefinition($serviceName, $serviceDef);
         }
     }

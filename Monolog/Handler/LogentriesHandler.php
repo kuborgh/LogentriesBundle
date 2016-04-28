@@ -16,6 +16,11 @@ class LogentriesHandler extends AbstractProcessingHandler
     protected $transport;
 
     /**
+     * @var bool
+     */
+    protected $enabled = true;
+
+    /**
      * Set a transport
      *
      * @param string $transportClass
@@ -27,17 +32,29 @@ class LogentriesHandler extends AbstractProcessingHandler
     }
 
     /**
+     * Set enabled
+     *
+     * @param bool $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
      * Writes the record down to the log of the implementing handler
      *
      * @param  array $record
-     *
-     * @return void
      */
     protected function write(array $record)
     {
+        // Skip when disabled
+        if (!$this->enabled) {
+            return;
+        }
+
         // Remove formatted message
         unset($record['formatted']);
-        $record['message'] = str_replace('\"', '"', $record['message']);
 
         // Use JMS Serializer. This will also allow \DateTime
         $serializer = SerializerBuilder::create()->build();
