@@ -2,7 +2,6 @@
 
 namespace Kuborgh\LogentriesBundle\Transport;
 
-use eZ\Bundle\EzPublishRestBundle\Features\Context\RestClient\GuzzleClient;
 use GuzzleHttp\Client;
 
 /**
@@ -51,9 +50,7 @@ class HttpGuzzleTransport implements TransportInterface
     /**
      * Send a custom message to a custom logentries channel via HTTP
      *
-     * @param string $logSet Logset
-     * @param string $log    Log to send data to
-     * @param string $json   Data in JSON format
+     * @param string $json Data in JSON format
      */
     public function send($json)
     {
@@ -75,6 +72,6 @@ class HttpGuzzleTransport implements TransportInterface
 
         // Perform request
         $client = new Client();
-        $res = $client->put($url, $options);
+        $client->put($url, $options);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Kuborgh\LogentriesBundle\Transport;
 
-use GuzzleHttp\Client;
-
 /**
  * Send logentries via Guzzle HTTP
  */
@@ -19,7 +17,7 @@ interface TransportInterface
     /**
      * Send a custom message to a custom logentries channel
      *
-     * @param string $data Data in JSON format
+     * @param string $json Data in JSON format
      */
     public function send($json);
 }
