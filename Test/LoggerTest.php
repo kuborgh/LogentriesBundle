@@ -35,11 +35,11 @@ class LoggerTest extends PHPUnit_Framework_TestCase
 
     protected function setUp($enabled = true)
     {
-        $this->logger = new Logger($enabled);
         $this->transport = $this->getMockBuilder('Kuborgh\LogentriesBundle\Transport\TransportInterface')->getMock();
 
-        // Just for the coverage ;-)
-        $this->logger->setTransport(get_class($this->transport),array());
+        $container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
+
+        $this->logger = new Logger($container, get_class($this->transport), array(), $enabled);
 
         // Inject transport
         $reflClass = new ReflectionClass(get_class($this->logger));

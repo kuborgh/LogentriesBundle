@@ -2,6 +2,7 @@
 
 use Kuborgh\LogentriesBundle\Transport\HttpGuzzleTransport;
 use Kuborgh\LogentriesBundle\DependencyInjection\KuborghLogentriesExtension;
+use Kuborgh\LogentriesBundle\Logger\Logger;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -38,11 +39,15 @@ YML;
         $handler = $this->container->get('kuborgh_logentries.handler.my_monolog_handler');
 
         // Check enabled flag
-        $this->assertTrue($this->getHiddenPropertyValue($handler, 'enabled'));
+        $logger = $this->getHiddenPropertyValue($handler, 'logger');
+        $this->assertTrue($logger instanceof Logger);
+        $this->assertTrue($this->getHiddenPropertyValue($logger, 'enabled'));
+
+        // Check loglevel
         $this->assertEquals(Monolog\Logger::ERROR, $this->getHiddenPropertyValue($handler, 'level'));
 
         // Get transport
-        $transport = $this->getHiddenPropertyValue($handler, 'transport');
+        $transport = $this->getHiddenPropertyValue($logger, 'transport');
         $this->assertTrue($transport instanceof HttpGuzzleTransport);
 
         // Check transport options
@@ -74,12 +79,18 @@ YML;
         // Fetch service
         $handler = $this->container->get('kuborgh_logentries.handler.my_monolog_handler');
 
-        // Check enabled flag
-        $this->assertTrue($this->getHiddenPropertyValue($handler, 'enabled'));
+        // Check loglevel
         $this->assertEquals(Monolog\Logger::NOTICE, $this->getHiddenPropertyValue($handler, 'level'));
 
+        // Get Logger
+        $logger = $this->getHiddenPropertyValue($handler, 'logger');
+        $this->assertTrue($logger instanceof Logger);
+
+        //Check enabled flag
+        $this->assertTrue($this->getHiddenPropertyValue($logger, 'enabled'));
+
         // Get transport
-        $transport = $this->getHiddenPropertyValue($handler, 'transport');
+        $transport = $this->getHiddenPropertyValue($logger, 'transport');
         $this->assertTrue($transport instanceof HttpGuzzleTransport);
 
         // Check transport options
@@ -143,7 +154,8 @@ YML;
 
         // Check enabled flag
         $this->assertFalse($this->getHiddenPropertyValue($logger, 'enabled'));
-        $this->assertFalse($this->getHiddenPropertyValue($handler, 'enabled'));
+        $handlerLogger = $this->getHiddenPropertyValue($handler, 'logger');
+        $this->assertFalse($this->getHiddenPropertyValue($handlerLogger, 'enabled'));
     }
 
     /**

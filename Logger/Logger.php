@@ -3,7 +3,8 @@ namespace Kuborgh\LogentriesBundle\Logger;
 
 use JMS\Serializer\SerializerBuilder;
 use Kuborgh\LogentriesBundle\Transport\TransportInterface;
-use Monolog\Handler\AbstractProcessingHandler;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\Exception\InactiveScopeException;
 
 /**
  * Simple logger
@@ -21,24 +22,25 @@ class Logger
     protected $enabled;
 
     /**
-     * Logger constructor.
+     * Container to fetch request from
      *
-     * @param bool $enabled
+     * @var Container
      */
-    public function __construct($enabled = true)
-    {
-        $this->enabled = $enabled;
-    }
+    protected $container;
 
     /**
-     * Set a transport
+     * Logger constructor.
      *
-     * @param string $transportClass
-     * @param string $transportParams
+     * @param Container $container       Container to get request
+     * @param string    $transportClass  Class of the transport service
+     * @param array     $transportParams Parameters for the transport service
+     * @param bool      $enabled         Enable logging
      */
-    public function setTransport($transportClass, $transportParams)
+    public function __construct(Container $container, $transportClass, $transportParams = array(), $enabled = true)
     {
+        $this->container = $container;
         $this->transport = new $transportClass($transportParams);
+        $this->enabled = $enabled;
     }
 
     /**
@@ -53,9 +55,34 @@ class Logger
             return;
         }
 
+        // Try to extract request
+        try {
+            $rq = $this->container->get('request');
+            $record['uri'] = $rq->getRequestUri();
+        } catch (InactiveScopeException $exc) {
+            // Kernel already terminated or console command
+            if (isset($_SERVER['argv']) && $_SERVER['argv']) {
+                $record['uri'] = implode(' ', $_SERVER['argv']);
+            }
+        } catch (\Exception $exc) {
+            $record['uri'] = 'Error: '.$exc->getMessage();
+        }
+
         // Use JMS Serializer. This will also allow \DateTime
-        $serializer = SerializerBuilder::create()->build();
-        $json = $serializer->serialize($data, 'json');
+        try {
+            $serializer = SerializerBuilder::create()->build();
+            $json = $serializer->serialize($data, 'json');
+        } catch (\Exception $exc) {
+            // Retry without context
+            if (!empty($record['context'])) {
+                unset($record['context']);
+
+                $this->log($data);
+
+                return;
+            }
+            $json = json_encode(array('error' => $exc->getMessage()));
+        }
 
         $this->transport->send($json);
     }

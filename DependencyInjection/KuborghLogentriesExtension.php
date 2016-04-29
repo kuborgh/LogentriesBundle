@@ -34,37 +34,44 @@ class KuborghLogentriesExtension extends Extension
 
         // Register monolog handler
         foreach ($config['monolog'] as $handlerName => $handlerConfig) {
-            // Configure transport
-            $transportClass = $container->getParameter(sprintf('kuborgh_logentries.transport.%s.class', $handlerConfig['transport']));
-
-            // Loglevel
+            // Convert Loglevel
             $level = is_int($handlerConfig['level']) ? $handlerConfig['level'] : constant('Monolog\Logger::'.strtoupper($handlerConfig['level']));
 
-            // Build Service
+            // Build logger
+            $loggerName = sprintf('kuborgh_logentries.logger.%s', $handlerName);
+            $this->defineLoggerService($container,$config,$handlerConfig,$loggerName);
+            $loggerRef = new Reference($loggerName);
+
+            // Build handler
             $handlerClass = $container->getParameter('kuborgh_logentries.handler.class');
             $serviceDef = new Definition($handlerClass);
             $serviceDef->addArgument($level);
-            $serviceDef->addMethodCall('setTransport', array($transportClass, $handlerConfig));
-            $serviceDef->addMethodCall('setEnabled', array($config['enabled']));
-
-            $containerRef = new Reference('service_container');
-            $serviceDef->addMethodCall('setContainer', array($containerRef));
+            $serviceDef->addMethodCall('setLogger', array($loggerRef));
             $serviceName = sprintf('kuborgh_logentries.handler.%s', $handlerName);
             $container->setDefinition($serviceName, $serviceDef);
         }
 
         // Register simple logger
-        foreach ($config['logger'] as $handlerName => $handlerConfig) {
-            // Configure transport
-            $transportClass = $container->getParameter(sprintf('kuborgh_logentries.transport.%s.class', $handlerConfig['transport']));
+        foreach ($config['logger'] as $loggerName => $loggerConfig) {
+            $serviceName = sprintf('kuborgh_logentries.%s', $loggerName);
 
-            // Build Service
-            $handlerClass = $container->getParameter('kuborgh_logentries.logger.class');
-            $serviceDef = new Definition($handlerClass);
-            $serviceDef->addArgument($config['enabled']);
-            $serviceDef->addMethodCall('setTransport', array($transportClass, $handlerConfig));
-            $serviceName = sprintf('kuborgh_logentries.%s', $handlerName);
-            $container->setDefinition($serviceName, $serviceDef);
+            $this->defineLoggerService($container, $config, $loggerConfig, $serviceName);
         }
+    }
+
+    protected function defineLoggerService(ContainerBuilder $container, $config, $subconfig, $serviceName)
+    {
+        // Configure transport
+        $transportClass = $container->getParameter(sprintf('kuborgh_logentries.transport.%s.class', $subconfig['transport']));
+
+        // Build Service
+        $handlerClass = $container->getParameter('kuborgh_logentries.logger.class');
+        $serviceDef = new Definition($handlerClass);
+        $containerRef = new Reference('service_container');
+        $serviceDef->addArgument($containerRef);
+        $serviceDef->addArgument($transportClass);
+        $serviceDef->addArgument($subconfig);
+        $serviceDef->addArgument($config['enabled']);
+        $container->setDefinition($serviceName, $serviceDef);
     }
 }
