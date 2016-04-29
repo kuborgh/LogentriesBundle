@@ -46,6 +46,9 @@ class KuborghLogentriesExtension extends Extension
             $serviceDef->addArgument($level);
             $serviceDef->addMethodCall('setTransport', array($transportClass, $handlerConfig));
             $serviceDef->addMethodCall('setEnabled', array($config['enabled']));
+
+            $containerRef = new Reference('service_container');
+            $serviceDef->addMethodCall('setContainer', array($containerRef));
             $serviceName = sprintf('kuborgh_logentries.handler.%s', $handlerName);
             $container->setDefinition($serviceName, $serviceDef);
         }
