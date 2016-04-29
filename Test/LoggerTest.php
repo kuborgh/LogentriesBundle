@@ -21,7 +21,7 @@ class LoggerTest extends PHPUnit_Framework_TestCase
     public function testEnabledLogger()
     {
         $data = array('lorem' => 'ipsum');
-        $this->transport->expects($this->once())->method('send')->with($this->equalTo('{"lorem":"ipsum"}'));
+        $this->transport->expects($this->once())->method('send')->with($this->equalTo('{"lorem":"ipsum","uri":""}'));
         $this->logger->log($data);
     }
 
@@ -38,6 +38,8 @@ class LoggerTest extends PHPUnit_Framework_TestCase
         $this->transport = $this->getMockBuilder('Kuborgh\LogentriesBundle\Transport\TransportInterface')->getMock();
 
         $container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
+        $request = new \Symfony\Component\HttpFoundation\Request();
+        $container->set('request',$request);
 
         $this->logger = new Logger($container, get_class($this->transport), array(), $enabled);
 
