@@ -58,14 +58,17 @@ class Logger
         // Try to extract request
         try {
             $rq = $this->container->get('request');
-            $record['uri'] = $rq->getRequestUri();
+            $data['uri'] = $rq->getRequestUri();
+            if ($rq->headers->has('referer')) {
+                $data['referer'] = $rq->headers->get('referer');
+            }
         } catch (InactiveScopeException $exc) {
             // Kernel already terminated or console command
             if (isset($_SERVER['argv']) && $_SERVER['argv']) {
-                $record['uri'] = implode(' ', $_SERVER['argv']);
+                $data['uri'] = implode(' ', $_SERVER['argv']);
             }
         } catch (\Exception $exc) {
-            $record['uri'] = 'Error: '.$exc->getMessage();
+            $data['uri'] = 'Error: '.$exc->getMessage();
         }
 
         // Use JMS Serializer. This will also allow \DateTime
@@ -74,8 +77,8 @@ class Logger
             $json = $serializer->serialize($data, 'json');
         } catch (\Exception $exc) {
             // Retry without context
-            if (!empty($record['context'])) {
-                unset($record['context']);
+            if (!empty($data['context'])) {
+                unset($data['context']);
 
                 $this->log($data);
 
