@@ -2,3 +2,4 @@ parameters:
     kuborgh_logentries.logger.class: Kuborgh\LogentriesBundle\Logger\Logger
     kuborgh_logentries.handler.class: Kuborgh\LogentriesBundle\Monolog\Handler\LogentriesHandler
     kuborgh_logentries.transport.http_guzzle.class: Kuborgh\LogentriesBundle\Transport\HttpGuzzleTransport
+    kuborgh_logentries.transport.udp.class: Kuborgh\LogentriesBundle\Transport\UdpTransport

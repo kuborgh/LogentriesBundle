@@ -39,6 +39,7 @@ class Configuration implements ConfigurationInterface
                             ->append($this->addTransportNode())
                             ->append($this->addAccountKeyNode())
                             ->append($this->addGuzzleOptionsNode())
+                            ->append($this->addPortNode())
                         ->end()
                     ->end()
                 ->end()
@@ -51,6 +52,7 @@ class Configuration implements ConfigurationInterface
                             ->append($this->addTransportNode())
                             ->append($this->addAccountKeyNode())
                             ->append($this->addGuzzleOptionsNode())
+                            ->append($this->addPortNode())
                         ->end()
                     ->end()
                 ->end()
@@ -70,7 +72,7 @@ class Configuration implements ConfigurationInterface
             ->info('Transport of the message. Can be one of "http_guzzle".')
             ->defaultValue('http_guzzle')
             ->validate()
-            ->ifNotInArray(array('http_guzzle'))
+            ->ifNotInArray(array('http_guzzle','udp'))
                 ->thenInvalid('Invalid transport "%s"')
             ->end()
         ;
@@ -129,6 +131,21 @@ class Configuration implements ConfigurationInterface
         $node
             ->info('Additional Guzzle options for guzzle_http transport')
             ->prototype('scalar')->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    /**
+     * @return NodeDefinition
+     */
+    protected function addPortNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('port','integer');
+        $node
+            ->info('Port for UDP/TCP transport')
             ->end()
         ;
 

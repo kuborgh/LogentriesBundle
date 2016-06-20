@@ -39,7 +39,7 @@ class LoggerTest extends PHPUnit_Framework_TestCase
 
         $container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
         $request = new \Symfony\Component\HttpFoundation\Request();
-        $container->set('request',$request);
+        $container->set('request', $request);
 
         $this->logger = new Logger($container, get_class($this->transport), array(), $enabled);
 

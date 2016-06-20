@@ -66,7 +66,7 @@ kuborgh_logentries:
     monolog:
         # Name of the handler
         my_handler:
-            # Transport for logging. Supported loggers are only http_guzzle by now 
+            # Transport for logging.
             transport: http_guzzle
 
             # Account Key of logentries.com account for http transport
@@ -85,7 +85,7 @@ kuborgh_logentries:
     logger:
         # Name of the service will be kuborgh_logentries.my_logger
         my_logger:
-            # Transport for logging. Supported loggers are only http_guzzle by now 
+            # Transport for logging.
             transport: http_guzzle
             
             # Account Key of logentries.com account for http transport
@@ -97,6 +97,17 @@ kuborgh_logentries:
             # Log channel
             log: my_log
 ```
+
+### UDP Transport
+UDP transport only needs a port
+```yml
+my_logger:
+    transport: udp
+   
+    # UPD port assigned by logentries
+    port: 12345
+```
+
 
 To enable monolog logging, add the defined handler(s) to the monolog section
 ```yml
