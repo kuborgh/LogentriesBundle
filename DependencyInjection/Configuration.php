@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
                             ->append($this->addAccountKeyNode())
                             ->append($this->addGuzzleOptionsNode())
                             ->append($this->addPortNode())
+                            ->append($this->addHostNode())
                         ->end()
                     ->end()
                 ->end()
@@ -53,6 +54,7 @@ class Configuration implements ConfigurationInterface
                             ->append($this->addAccountKeyNode())
                             ->append($this->addGuzzleOptionsNode())
                             ->append($this->addPortNode())
+                            ->append($this->addHostNode())
                         ->end()
                     ->end()
                 ->end()
@@ -146,6 +148,20 @@ class Configuration implements ConfigurationInterface
         $node = $builder->root('port','integer');
         $node
             ->info('Port for UDP/TCP transport')
+            ->end()
+        ;
+
+        return $node;
+    }
+    /**
+     * @return NodeDefinition
+     */
+    protected function addHostNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('host','scalar');
+        $node
+            ->info('Host for UDP/TCP transport')
             ->end()
         ;
 

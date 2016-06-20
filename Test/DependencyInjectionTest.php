@@ -56,7 +56,7 @@ YML;
     }
 
     /**
-     * Test minimal config of monolog handler
+     * Test maximum config of monolog handler
      */
     public function testMaximumMonologConfig()
     {
@@ -156,6 +156,38 @@ YML;
         $this->assertFalse($this->getHiddenPropertyValue($logger, 'enabled'));
         $handlerLogger = $this->getHiddenPropertyValue($handler, 'logger');
         $this->assertFalse($this->getHiddenPropertyValue($handlerLogger, 'enabled'));
+    }
+
+    public function testUdpConfig()
+    {
+        $yml = <<<YML
+kuborgh_logentries:
+    monolog:
+        my_monolog_handler:
+            transport: udp
+            port: 123
+    logger:
+        my_logger:
+            transport: udp
+            port: 345
+            host: localhost
+YML;
+        $config = \Symfony\Component\Yaml\Yaml::parse($yml);
+        $this->extension->load($config, $this->container);
+
+        // Fetch service
+        $logger = $this->container->get('kuborgh_logentries.my_logger');
+        $handler = $this->container->get('kuborgh_logentries.handler.my_monolog_handler');
+
+        // Check enabled flag
+        $transport = $this->getHiddenPropertyValue($logger, 'transport');
+        $this->assertEquals(345, $this->getHiddenPropertyValue($transport, 'port'));
+        $this->assertEquals('localhost', $this->getHiddenPropertyValue($transport, 'host'));
+
+        $handlerLogger = $this->getHiddenPropertyValue($handler, 'logger');
+        $handlerLoggerTransport = $this->getHiddenPropertyValue($handlerLogger, 'transport');
+        $this->assertEquals(123, $this->getHiddenPropertyValue($handlerLoggerTransport, 'port'));
+        $this->assertEquals('data.logentries.com', $this->getHiddenPropertyValue($handlerLoggerTransport, 'host'));
     }
 
     /**
