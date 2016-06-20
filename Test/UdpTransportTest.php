@@ -32,6 +32,14 @@ class UdpTransportTest extends PHPUnit_Framework_TestCase
         $transport->send($data);
     }
 
+    public function testLocalhost()
+    {
+        $transport = new UdpTransport(array('port' => '12345', 'host' => '127.0.0.1'));
+        $data = '{"lorem":"ipsum"}';
+
+        $transport->send($data);
+    }
+
     protected function setUp()
     {
         $this->transport = new UdpTransport(array('port' => 12345));

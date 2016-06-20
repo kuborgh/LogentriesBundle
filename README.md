@@ -106,6 +106,9 @@ my_logger:
    
     # UPD port assigned by logentries
     port: 12345
+    
+    # Alternative host, when using a proxy 
+    host: host.proxy.lan
 ```
 
 
